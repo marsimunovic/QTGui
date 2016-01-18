@@ -6,6 +6,9 @@
 #include "spreadsheet.h"
 
 #include <QAction>
+#include <QLabel>
+#include <QMenu>
+#include <QToolBar>
 
 MainWindow::MainWindow()
 {
@@ -80,4 +83,71 @@ void MainWindow::createActions()
     aboutQtAction->setStatusTip(tr("Show the Qt library's About box"));
     connect(aboutQtAction, SIGNAL(trigerred()), qApp, SLOT(aboutQt()));
 
+}
+
+void MainWindow::createMenus()
+{
+    fileMenu = menuBar()->addMenu(tr("&File"));
+    fileMenu->addAction(newAction);
+    fileMenu->addAction(openAction);
+    fileMenu->addAction(saveAction);
+    fileMenu->addAction(saveAsAction);
+    separatorAction = fileMenu->addSeparator();
+    for(int i = 0; i < MaxRecentFiles; ++i)
+        fileMenu->addAction(recentFileActions[i]);
+    fileMenu->addSeparator();
+    fileMenu->addAction(exitAction);
+
+    editMenu = menuBar()->addMenu(tr("&Edit"));
+    editMenu->addAction(cutAction);
+    editMenu->addAction(copyAction);
+    editMenu->addAction(pasteAction);
+    editMenu->addAction(deleteAction);
+
+    selectSubMenu = editMenu->addMenu(tr("&Select"));
+    selectSubMenu->addAction(selectRowAction);
+    selectSubMenu->addAction(selectColumnAction);
+    selectSubMenu->addAction(selectAllAction);
+
+    editMenu->addSeparator();
+    editMenu->addAction(findAction);
+    editMenu->addAction(goToCellAction);
+
+    toolsMenu = menuBar()->addMenu(tr("&Tools"));
+    toolsMenu->addAction(recalculateAction);
+    toolsMenu->addAction(sortAction);
+
+    optionsMenu = menuBar()->addMenu(tr("&Options"));
+    optionsMenu->addAction(showGridAction);
+    optionsMenu->addAction(autoRecalcAction);
+
+    menuBar()->addSeparator();
+
+    helpMenu = menuBar()->addMenu(tr("&Help"));
+    helpMenu->addAction(aboutAction);
+    helpMenu->addAction(aboutQtAction);
+}
+
+void MainWindow::createContextMenu()
+{
+    spreadsheet->addAction(cutAction);
+    spreadsheet->addAction(copyAction);
+    spreadsheet->addAction(pasteAction);
+    spreadsheet->setContextMenuPolicy(Qt::ActionsContextMenu);
+}
+
+void MainWindow::createToolBars()
+{
+    fileToolBar = addToolBar((tr("&File")));
+    fileToolBar->addAction(newAction);
+    fileToolBar->addAction(openAction);
+    fileToolBar->addAction(saveAction);
+
+    editToolBar = addToolBar(tr("&Edit"));
+    editToolBar->addAction(cutAction);
+    editToolBar->addAction(copyAction);
+    editToolBar->addAction(pasteAction);
+    editToolBar->addSeparator();
+    editToolBar->addAction(findAction);
+    editToolBar->addAction(goToCellAction);
 }

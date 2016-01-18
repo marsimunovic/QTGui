@@ -56,15 +56,36 @@ private:
     QAction *separatorAction;
     QMenu *fileMenu;
     QMenu *editMenu;
+    QMenu *selectSubMenu;
+    QMenu *toolsMenu;
+    QMenu *optionsMenu;
+    QMenu *helpMenu;
 
     QToolBar *fileToolBar;
     QToolBar *editToolBar;
     QAction *newAction;
     QAction *openAction;
+    QAction *saveAction;
+    QAction *saveAsAction;
     QAction *exitAction;
+    QAction *selectRowAction;
+    QAction *selectColumnAction;
     QAction *selectAllAction;
-    QAction *showGridAction;
 
+    QAction *showGridAction;
+    QAction *autoRecalcAction;
+
+    QAction *cutAction;
+    QAction *copyAction;
+    QAction *pasteAction;
+    QAction *deleteAction;
+    QAction *findAction;
+    QAction *goToCellAction;
+
+    QAction *sortAction;
+    QAction *recalculateAction;
+
+    QAction *aboutAction;
     QAction *aboutQtAction;
 };
 
