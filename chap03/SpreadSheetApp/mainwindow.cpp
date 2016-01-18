@@ -1,14 +1,25 @@
+#include <QtGui>
+#include "finddialog.h"
+#include "gotocelldialog.h"
 #include "mainwindow.h"
-#include "ui_mainwindow.h"
+#include "sortdialog.h"
+#include "spreadsheet.h"
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
+MainWindow::MainWindow()
 {
-    ui->setupUi(this);
-}
+    spreadsheet = new Spreadsheet;
+    setCentralWidget(spreadsheet);
 
-MainWindow::~MainWindow()
-{
-    delete ui;
+    createActions();
+    createMenus();
+    createContextMenu();
+    createToolBars();
+    createStatusBar();
+
+    readSettings();
+
+    findDialog = 0;
+
+    setWindowIcon(QIcon(":/images/icon.png"));
+    setCurrentFile("");
 }
