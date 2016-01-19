@@ -81,6 +81,24 @@ bool MainWindow::saveAs()
     return saveFile(fileName);
 }
 
+void MainWindow::find()
+{
+    if(!findDialog) {
+        findDialog = new FindDialog(this);
+        connect(findDialog, SIGNAL(findNext(const QString &,
+                                            Qt::CaseSensitivity)),
+                spreadsheet, SLOT(findNext(const QString &,
+                                            Qt::CaseSensitivity)));
+        connect(findDialog, SIGNAL(findPrevoius(const QString &,
+                                            Qt::CaseSensitivity)),
+                spreadsheet, SLOT(findPrevious(const QString &,
+                                            Qt::CaseSensitivity)));
+    }
+    findDialog->show();
+    findDialog->raise();
+    findDialog->activateWindow();
+}
+
 void MainWindow::openRecentFile()
 {
     if(okToContinue()){

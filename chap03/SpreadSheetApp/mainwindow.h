@@ -3,8 +3,6 @@
 
 #include <QMainWindow>
 
-
-#include <QMainWindow>
 class QAction;
 class QLabel;
 class FindDialog;
