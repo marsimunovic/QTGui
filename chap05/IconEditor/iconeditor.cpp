@@ -2,7 +2,7 @@
 #include "ui_iconeditor.h"
 
 #include <QPainter>
-
+#include <QPaintEvent>
 IconEditor::IconEditor(QWidget *parent) :
     QWidget(parent)
 {
@@ -85,7 +85,3 @@ void IconEditor::paintEvent(QPaintEvent *event)
     }
 }
 
-IconEditor::~IconEditor()
-{
-    delete ui;
-}
