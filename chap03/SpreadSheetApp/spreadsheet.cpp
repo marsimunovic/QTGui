@@ -4,6 +4,7 @@
 #include <QFile>
 #include <QMessageBox>
 #include <QApplication>
+#include <QClipboard>
 
 SpreadSheet::SpreadSheet(QWidget *parent)
     :QTableWidget(parent)
@@ -85,7 +86,7 @@ bool SpreadSheet::readFile(const QString &fileName)
     QApplication::setOverrideCursor(Qt::WaitCursor);
     while(!in.atEnd()){
         in >> row >> column >> str;
-        setFormula(row, column, formula);
+        setFormula(row, column, str);
     }
     QApplication::restoreOverrideCursor();
     return true;

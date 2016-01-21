@@ -32,7 +32,7 @@ QVariant Cell::data(int role) const
             return int(Qt::AlignRight | Qt::AlignVCenter);
         }
     } else {
-        retrun QTableWidgetItem::data(role);
+        return QTableWidgetItem::data(role);
     }
 }
 

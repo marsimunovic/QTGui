@@ -1,4 +1,4 @@
-#include <QtGui>
+#include "cell.h"
 #include "finddialog.h"
 #include "gotocelldialog.h"
 #include "mainwindow.h"
@@ -6,16 +6,22 @@
 #include "spreadsheet.h"
 
 #include <QAction>
+#include <QApplication>
+#include <QCloseEvent>
+#include <QComboBox>
+#include <QFileDialog>
 #include <QLabel>
 #include <QMenu>
-#include <QToolBar>
+#include <QMenuBar>
 #include <QMainWindow>
 #include <QMessageBox>
-#include <QFileDialog>
+#include <QSettings>
+#include <QStatusBar>
+#include <QToolBar>
 
 MainWindow::MainWindow()
 {
-    spreadsheet = new Spreadsheet;
+    spreadsheet = new SpreadSheet(this);
     setCentralWidget(spreadsheet);
 
     createActions();
@@ -28,6 +34,7 @@ MainWindow::MainWindow()
 
     findDialog = 0;
 
+    setAttribute(Qt::WA_DeleteOnClose);
     setWindowIcon(QIcon(":/images/icon.png"));
     setCurrentFile("");
 }
@@ -44,10 +51,12 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::newFile()
 {
-    if(okToContinue()){
-        spreadsheet->clear();
-        setCurrentFile("");
-    }
+//    if(okToContinue()){
+//        spreadsheet->clear();
+//        setCurrentFile("");
+//    }
+    MainWindow *mainWin = new MainWindow;
+    mainWin->show();
 }
 
 void MainWindow::open()
@@ -88,9 +97,9 @@ void MainWindow::find()
         connect(findDialog, SIGNAL(findNext(const QString &,
                                             Qt::CaseSensitivity)),
                 spreadsheet, SLOT(findNext(const QString &,
-                                            Qt::CaseSensitivity)));
-        connect(findDialog, SIGNAL(findPrevoius(const QString &,
-                                            Qt::CaseSensitivity)),
+                                           Qt::CaseSensitivity)));
+        connect(findDialog, SIGNAL(findPrevious(const QString &,
+                                                Qt::CaseSensitivity)),
                 spreadsheet, SLOT(findPrevious(const QString &,
                                             Qt::CaseSensitivity)));
     }
@@ -158,7 +167,7 @@ void MainWindow::openRecentFile()
 void MainWindow::updateStatusBar()
 {
     locationLabel->setText(spreadsheet->currentLocation());
-    locationLabel->setText(spreadsheet->currentFormula());
+    formulaLabel->setText(spreadsheet->currentFormula());
 }
 
 void MainWindow::spreadsheetModified()
@@ -175,24 +184,39 @@ void MainWindow::createActions()
     newAction->setStatusTip(tr("Create a new spreadsheet file"));
     connect(newAction, SIGNAL(triggered()), this, SLOT(newFile()));
 
-    openAction = new QAction(tr("&Open"), this);
+    openAction = new QAction(tr("&Open..."), this);
     openAction->setIcon(QIcon(":/images/open.png"));
     openAction->setShortcut(QKeySequence::Open);
-    openAction->setStatusTip(tr("Open existing spreadsheet file"));
-    connect(openAction, SIGNAL(triggered()), this, SLOT(open());
+    openAction->setStatusTip(tr("Open an existing spreadsheet file"));
+    connect(openAction, SIGNAL(triggered()), this, SLOT(open()));
 
-    for(int i = 0; i < MaxRecentFiles; ++i)
-    {
+    saveAction = new QAction(tr("&Save"), this);
+    saveAction->setIcon(QIcon(":/images/save.png"));
+    saveAction->setShortcut(QKeySequence::Save);
+    saveAction->setStatusTip(tr("Save the spreadsheet to disk"));
+    connect(saveAction, SIGNAL(triggered()), this, SLOT(save()));
+
+    saveAsAction = new QAction(tr("Save &As..."), this);
+    saveAsAction->setStatusTip(tr("Save the spreadsheet under a new "
+                                  "name"));
+    connect(saveAsAction, SIGNAL(triggered()), this, SLOT(saveAs()));
+
+    for (int i = 0; i < MaxRecentFiles; ++i) {
         recentFileActions[i] = new QAction(this);
         recentFileActions[i]->setVisible(false);
         connect(recentFileActions[i], SIGNAL(triggered()),
                 this, SLOT(openRecentFile()));
     }
 
+    closeAction = new QAction(tr("&Close"), this);
+    closeAction->setShortcut(QKeySequence::Close);
+    closeAction->setStatusTip(tr("Close this window"));
+    connect(closeAction, SIGNAL(triggered()), this, SLOT(close()));
+
     exitAction = new QAction(tr("E&xit"), this);
     exitAction->setShortcut(tr("Ctrl+Q"));
     exitAction->setStatusTip(tr("Exit the application"));
-    connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
+    connect(exitAction, SIGNAL(triggered()), qApp, SLOT(closeAllWindows()));
 
     selectAllAction = new QAction(tr("&All"), this);
     selectAllAction->setShortcut(QKeySequence::SelectAll);
@@ -209,7 +233,8 @@ void MainWindow::createActions()
 
     aboutQtAction = new QAction(tr("About &Qt"), this);
     aboutQtAction->setStatusTip(tr("Show the Qt library's About box"));
-    connect(aboutQtAction, SIGNAL(trigerred()), qApp, SLOT(aboutQt()));
+
+    connect(aboutQtAction, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
 
 }
 

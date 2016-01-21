@@ -6,7 +6,7 @@
 class QAction;
 class QLabel;
 class FindDialog;
-class Spreadsheet;
+class SpreadSheet;
 
 class MainWindow : public QMainWindow
 {
@@ -43,7 +43,7 @@ private:
     void updateRecentFileActions();
 
     QString strippedName(const QString &fullFileName);
-    Spreadsheet *spreadsheet;
+    SpreadSheet *spreadsheet;
     FindDialog *findDialog;
     QLabel *locationLabel;
     QLabel *formulaLabel;
@@ -66,6 +66,7 @@ private:
     QAction *saveAction;
     QAction *saveAsAction;
     QAction *exitAction;
+    QAction *closeAction;
     QAction *selectRowAction;
     QAction *selectColumnAction;
     QAction *selectAllAction;
