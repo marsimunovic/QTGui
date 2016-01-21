@@ -111,6 +111,41 @@ void MainWindow::goToCell()
     delete dialog;
 }
 
+void MainWindow::sort()
+{
+    SortDialog dialog(this);
+    QTableWidgetSelectionRange range = spreadsheet->selectedRange();
+    dialog.setColumnRange('A' + range.leftColumn(),
+                          'A' + range.rightColumn());
+    if(dialog.exec()) {
+        SpreadsheetCompare compare;
+        compare.keys[0] =
+                dialog.primaryColumnCombo->currentIndex();
+        compare.keys[1] =
+                dialog.secondaryColumnCombo->currentIndex() - 1;
+        compare.keys[2] =
+                dialog.tertiaryColumnCombo->currentIndex() - 1;
+        compare.ascending[0] =
+                (dialog.primaryOrderCombo->currentIndex() == 0);
+        compare.ascending[1] =
+                (dialog.secondaryOrderCombo->currentIndex() == 0);
+        compare.ascending[2] =
+                (dialog.tertiaryOrderCombo->currentIndex() == 0);
+        spreadsheet->sort(compare);
+    }
+}
+
+void MainWindow::about()
+{
+    QMessageBox::about(this, tr("About Spreadsheet"),
+            tr("<h2>Spreadsheet 1.1</h2>"
+               "<p>Copyright &copy; 2008 Software Inc."
+               "<p>Spreadsheet is a small application that "
+               "demonstrates QAction, QMainWindow, QMenuBar, "
+               "QStatusBar, QTableWidget, QToolBar, and many other "
+               "Qt classes."));
+}
+
 void MainWindow::openRecentFile()
 {
     if(okToContinue()){
@@ -262,6 +297,32 @@ void MainWindow::createStatusBar()
     connect(spreadsheet, SIGNAL(modified()),
             this, SLOT(spreadsheetModified()));
     updateStatusBar();
+}
+
+void MainWindow::readSettings()
+{
+    QSettings settings("Software Inc.", "Spreadsheet");
+
+    restoreGeometry(settings.value("geometry").toByteArray());
+
+    recentFiles = settings.value("recentFiles").toStringList();
+    updateRecentFileActions();
+
+    bool showGrid = settings.value("showGrid").toBool();
+    showGridAction->setChecked(showGrid);
+
+    bool autoRecalc = settings.value("autoRecalc", true).toBool();
+    autoRecalcAction->setChecked(autoRecalc);
+}
+
+void MainWindow::writeSettings()
+{
+    QSettings settings("Software Inc.", "Spreadsheet");
+
+    settings.setValue("geometry", saveGeometry());
+    settings.setValue("recentFiles", recentFiles);
+    settings.setValue("showGrid", showGridAction->isChecked());
+    settings.setValue("autoRecalc", autoRecalcAction->isChecked());
 }
 
 bool MainWindow::okToContinue()

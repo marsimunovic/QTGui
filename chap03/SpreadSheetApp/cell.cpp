@@ -136,6 +136,53 @@ QVariant Cell::evalTerm(const QString &str, int &pos) const
 
 QVariant Cell::evalFactor(const QString &str, int &pos) const
 {
+    QVariant result;
+    bool negative = false;
 
+    if(str[pos] == '-') {
+        negative = true;
+        ++pos;
+    }
+    if(str[pos] == '(') {
+        ++pos;
+        result = evalExpression(str, pos);
+        if(str[pos] != ')')
+            result = Invalid;
+        ++pos;
+    } else {
+        QRegExp regExp("[A-Za-z][1-9][0-9]{0,2}");
+        QString token;
+
+        while(str[pos].isLetterOrNumber() || str[pos] == '.') {
+            token += str[pos];
+        }
+
+        if(regExp.exactMatch(token)){
+            int column = token[0].toUpper().unicode() - 'A';
+            int row = token.mid(1).toInt() - 1;
+
+            Cell *c = static_cast<Cell*>(
+                        tableWidget()->item(row, column));
+            if(c) {
+                result = c->value();
+            } else {
+                result = 0.0;
+            }
+        } else {
+            bool ok;
+            result = token.toDouble(&ok);
+            if(!ok)
+                result = Invalid;
+        }
+    }
+
+    if(negative) {
+        if(result.type() == QVariant::Double) {
+            result = -result.toDouble();
+        } else {
+            result = Invalid;
+        }
+    }
+    return result;
 }
 
