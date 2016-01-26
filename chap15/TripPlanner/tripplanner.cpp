@@ -76,25 +76,78 @@ void TripPlanner::sendRequest()
 
 void TripPlanner::updateTableWidget()
 {
+    QDataStream in(&tcpSocket);
+    in.setVersion(QDataStream::Qt_4_3);
 
+    forever {
+        int row = tableWidget->rowCount();
+
+        if(nextBlockSize == 0) {
+            if(tcpSocket.bytesAvailable() < sizeof(quint16))
+                break;
+            in >> nextBlockSize;
+        }
+
+        if(nextBlockSize == 0xFFFF) {
+            closeConnection();
+            statusLabel->setText(tr("Found %1 trip(s)").arg(row));
+            break;
+        }
+
+        if(tcpSocket.bytesAvailable() < nextBlockSize)
+            break;
+
+        QDate date;
+        QTime departureTime;
+        QTime arrivalTime;
+        quint16 duration;
+        quint8  changes;
+        QString trainType;
+
+        in >> date >> departureTime >> duration >> changes >> trainType;
+        arrivalTime = departureTime.addSecs(duration * 60);
+        tableWidget->setRowCount(row + 1);
+
+        QStringList fields;
+        fields << date.toString(Qt::LocalDate)
+               << departureTime.toString(tr("hh:mm"))
+               << arrivalTime.toString(tr("hh:mm"))
+               << tr("%1 hr %2 min").arg(duration / 60)
+                                    .arg(duration % 60)
+               << QString::number(changes)
+               << trainType;
+
+        for(int i = 0; i < fields.count(); ++i)
+            tableWidget->setItem(row, i,
+                                 new QTableWidgetItem(fields[i]));
+
+        nextBlockSize = 0;
+    }
 }
 
 void TripPlanner::stopSearch()
 {
-
+    statusLabel->setText(tr("Search stopped"));
+    closeConnection();
 }
 
 void TripPlanner::connectionClosedByServer()
 {
-
+    if(nextBlockSize != 0xFFFF)
+        statusLabel->setText(tr("Error: Connection closed by server"));
+    closeConnection();
 }
 
 void TripPlanner::error()
 {
-
+    statusLabel->setText(tcpSocket.errorString());
+    closeConnection();
 }
 
 void TripPlanner::closeConnection()
 {
-
+    tcpSocket.close();
+    searchButton->setEnabled(true);
+    stopButton->setEnabled(false);
+    progressBar->hide();
 }
